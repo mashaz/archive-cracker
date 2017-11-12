@@ -6,7 +6,7 @@ __version__ = '3.6'
 import zipfile
 import os
 import sys
-from unrar import rarfile
+import rarfile
 from brute import brute 
 from datetime import datetime
 
@@ -25,9 +25,7 @@ def generater_pwd(mode):
     return pwd_list
 
 def cracker_rar(file_name):
-    file_name = '33333.rar'
     rar_file = rarfile.RarFile(file_name, 'r')
-    print('read over.')
     pwd_list = generater_pwd(mode='number,3')
     times = 0
     for pwd in pwd_list:
@@ -35,17 +33,15 @@ def cracker_rar(file_name):
         print('try times:', times)
         try:
             print(pwd)
-            rar_file.extractall(pwd=str.encode(pwd))
+            rar_file.extractall(pwd=pwd)
             print("file extracted")
             print("the password is %s" % pwd)
             break
         except:
-            print('pass')
             pass
     rar_file.close()
 
 def cracker_zip(file_name):
-    file_name = 'rules.zip'
     zip_file = zipfile.ZipFile(file_name, 'r')
     pwd_list = generater_pwd(mode='number,3')
     times = 0
@@ -65,7 +61,7 @@ def cracker_zip(file_name):
     print('tried times:', times)
     print('time consuming:', (datetime.now() - start_time).microseconds/1000/1000, 's')
 
-def cracker():
+def cracker_main():
     file_name = sys.argv[1]
     if not os.path.isfile(file_name):
         print('Invilid file.')
@@ -77,4 +73,4 @@ def cracker():
         cracker_rar(file_name)
 
 if __name__ == '__main__':
-    cracker()
+    cracker_main()

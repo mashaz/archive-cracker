@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 __version__ = '3.6'
@@ -8,10 +8,10 @@ import sys
 import rarfile
 import zipfile
 import argparse
-import threadpool
+# import threadpool
 from math import pow
 from time import sleep
-from brute import brute 
+# from brute import brute 
 from datetime import datetime
 
 
@@ -54,28 +54,27 @@ def cracker(file_name, file_type, mode=None):
     pwd_gen = generator_pwd(mode)
     times = 0
     start_time = datetime.now()
+    print('start time:', start_time)
     for pwd_list in pwd_gen: # pwd_list = ['0','000'...]
         for pwd in pwd_list:
             times += 1
-            sys.stdout.write('{} {}, '.format('try times:', times))
-            sys.stdout.write('{} {}\r'.format('try password:', pwd))
+            sys.stdout.write('try times {}, try password {}\r'.format(times, pwd))
             sys.stdout.flush()
             try:
                 if file_type == 'zip':
                     zip_file.extractall(pwd=str.encode(pwd))
                 elif file_type == 'rar':
                     rar_file.extractall(pwd=pwd)
-                print("file extracted")
-                print("!!!the password is %s" % pwd)
                 print('tried times:', times)
-                print('time consuming:', (datetime.now() - start_time).microseconds/1000/1000, 's')
+                stop_time = datetime.now()
+                # print('stop time:', (start_time.microseconds-stop_time.microseconds)/1000/1000, 's') # why there is a problem???
+                print('stop time:', stop_time)
+                print("^_^ file extracted ^_^")
+                print("!!!the password is %s" % pwd)
                 return True
             except:
                 pass
-
     return False
-
-    
 
 
 def multi_thread():
@@ -89,11 +88,15 @@ def cracker_main():
     """
     entrance function
     """
-    parser = argparse.ArgumentParser(description='rar/zip Cracker')
+    parser = argparse.ArgumentParser(description='rar/zip Cracker \
+        e.g. python p3 boooooom.py \n --mode n_6 --file archive.zip  # 6 means max password length, n means only number')
     parser.add_argument('--file', help='file name')
     parser.add_argument('--mode', help='password generate mode')
     parser.add_argument('--process_num', help='process num')
     results = parser.parse_args()
+    if len(sys.argv) == 1:
+        print('rar/zip Cracker \ne.g. python p3 boooooom.py --mode n_6 --file archive.zip  \n# in \'n_6\', 6 means max password length, n means only number')
+        return 
     if not results.mode:
         print('No mode. Auto generate.')
     else:
@@ -105,6 +108,7 @@ def cracker_main():
     file_type = file_name.split('.')[-1]
     is_crack = cracker(file_name, file_type, results.mode)
     if not is_crack:
+        print()
         print('sorry, please try another way.')
 
 if __name__ == '__main__':

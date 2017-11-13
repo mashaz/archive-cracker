@@ -3,12 +3,16 @@
 
 __version__ = '3.6'
 
+import argparse
 import zipfile
 import os
 import sys
 import rarfile
+from time import sleep
 from brute import brute 
 from datetime import datetime
+from progressive.bar import Bar
+
 
 def generater_pwd(mode):
     # length = int(mode.split(',')[1])
@@ -24,7 +28,10 @@ def generater_pwd(mode):
     print('length:', len(pwd_list))
     return pwd_list
 
-def cracker_rar(file_name):
+def pwd_from_dict():
+    pass
+
+def cracker_rar(file_name, mode=None):
     rar_file = rarfile.RarFile(file_name, 'r')
     pwd_list = generater_pwd(mode='number,3')
     times = 0
@@ -32,7 +39,7 @@ def cracker_rar(file_name):
         times += 1
         print('try times:', times)
         try:
-            print(pwd)
+            print('try password:',pwd)
             rar_file.extractall(pwd=pwd)
             print("file extracted")
             print("the password is %s" % pwd)
@@ -41,13 +48,27 @@ def cracker_rar(file_name):
             pass
     rar_file.close()
 
-def cracker_zip(file_name):
+def cracker_zip(file_name, mode=None):
     zip_file = zipfile.ZipFile(file_name, 'r')
     pwd_list = generater_pwd(mode='number,3')
     times = 0
     start_time = datetime.now()
+
+    bar = Bar(max_value=len(pwd_list))
+    bar.cursor.clear_lines(2)  # Make some room
+    bar.cursor.save()  # Mark starting line
+    # for i in range(101):
+        # sleep(0.1)  # Do some work
+        # bar.cursor.restore()  # Return cursor to start
+        # bar.draw(value=i)  # Draw the bar!
+
     for pwd in pwd_list:
         times += 1
+        sleep(0.1)  # Do some work
+        bar.cursor.restore()  # Return cursor to start
+        bar.draw(value=times)  # Draw the bar!
+
+
         print('try times:', times)
         try:
             print(pwd)
@@ -62,7 +83,19 @@ def cracker_zip(file_name):
     print('time consuming:', (datetime.now() - start_time).microseconds/1000/1000, 's')
 
 def cracker_main():
-    file_name = sys.argv[1]
+
+
+    parser = argparse.ArgumentParser(description='rar/zip Cracker')
+    parser.add_argument('--file', help='file name')
+    parser.add_argument('--mode', help='password mode')
+    results = parser.parse_args()
+    if not results.mode:
+        print('No mode. Auto generate.')
+    else:
+        pass
+
+    # file_name = sys.argv[1]
+    file_name = results.file
     if not os.path.isfile(file_name):
         print('Invilid file.')
         return 
